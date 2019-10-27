@@ -7,14 +7,14 @@ class State:
     MIN_Y: float = 30.0
 
     def __init__(self, id_str: str, name: str, initial: bool = False, final: bool = False):
-        self.id: str = id_str
-        self.name: str = name
+        self.id = id_str
+        self.name = name
 
-        self.is_initial: bool = initial
-        self.is_final: bool = final
+        self.is_initial = initial
+        self.is_final = final
 
-        self.x_coord: str = ''
-        self.y_coord: str = ''
+        self.x_coord = ''
+        self.y_coord = ''
 
     def as_string(self) -> str:
         state_str = '\n\t\t<state id="'+self.id+'" name="'+self.name + \
@@ -30,9 +30,9 @@ class State:
 
 class Transition:
     def __init__(self, from_state: State, to_state: State, accepted_word: str = None):
-        self.from_state: State = from_state
-        self.to_state: State = to_state
-        self.accepted_word: str = accepted_word
+        self.from_state = from_state
+        self.to_state = to_state
+        self.accepted_word = accepted_word
 
         self.base_pre = '\n\t\t<transition>&#13;'
         self.base_post = '\n\t\t</transition>&#13;'
@@ -94,7 +94,7 @@ class XML_Generator:
         # Generowanie przejść
         if self.alphabet:
             for i in range(self.number_of_transitions):
-                if randint(1, 4) == 1:
+                if randint(1, 5) == 1:
                     self.transitions.append(Transition(self.random_state(),
                                                        self.random_state()))
                 else:
@@ -154,15 +154,24 @@ class XML_Generator:
             print(s.is_final, '\t', end='')
 
             for a in self.alphabet:
-                print(self.find_state_destination(s, a)+'\t', end='')
-            print(self.find_state_destination(s, None))
+                dest = self.find_state_destination(s, a)
+                if not dest:
+                    print('-\t', end='')
+                else:
+                    print(dest.name)
 
-    def find_state_destination(self, state: State, word: str) -> str:
+            dest = self.find_state_destination(s, None)
+            if not dest:
+                print('-\t', end='')
+            else:
+                print(dest.name)
+
+    def find_state_destination(self, state: State, word: str) -> State:
         for trans in self.transitions:
             if trans.from_state.id == state.id:
                 if trans.accepted_word == word:
-                    return trans.to_state.name
-        return '-'
+                    return trans.to_state
+        return None
 
 
 def parse_args():
