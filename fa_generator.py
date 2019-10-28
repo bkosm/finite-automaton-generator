@@ -1,5 +1,6 @@
 from random import randint
 import argparse
+from sys import exit
 
 
 class State:
@@ -158,11 +159,11 @@ class XML_Generator:
                 if not dest:
                     print('-\t', end='')
                 else:
-                    print(dest.name)
+                    print(dest.name, '\t', end='')
 
             dest = self.find_state_destination(s, None)
             if not dest:
-                print('-\t', end='')
+                print('-')
             else:
                 print(dest.name)
 
@@ -172,6 +173,46 @@ class XML_Generator:
                 if trans.accepted_word == word:
                     return trans.to_state
         return None
+
+    def generate_fa_accepted_word(self) -> str:
+        final_states = [s for s in self.states if s.is_final]
+
+        for ref in final_states:
+            msg = ''
+            loop_breaker = 0
+
+            while True:
+                for trans in self.transitions:
+                    if trans.to_state.id == ref.id:
+                        if trans.accepted_word:
+                            msg += trans.accepted_word[::-1]
+                        ref = trans.from_state
+                        break
+
+                loop_breaker += 1
+
+                if ref.is_initial:
+                    return msg[::-1]
+                elif loop_breaker > 1000:
+                    break
+
+        return "~"
+
+    def gen_interesting_case(self) -> None:
+        attempt = 1
+        while not len(self.generate_fa_accepted_word()) > 3:
+            print('Attempt no', attempt, '\r', end='')
+            attempt += 1
+
+            self.reset_generator()
+            self.gen_fa()
+
+        print()
+
+    def reset_generator(self) -> None:
+        self.number_of_transitions = randint(0, 2*self.number_of_states)
+        self.states = []
+        self.transitions = []
 
 
 def parse_args():
@@ -184,13 +225,13 @@ def parse_args():
         "-a", help="Alfabet, słowa rozpoznawane przez automat", metavar="A", nargs="*")
     parser.add_argument(
         "-fn", help="Nazwa pliku wyjściowego XML", metavar="xxx.jff", required=False)
+    parser.add_argument("--interesting", help="Generuje automaty tak długo aż uzyska przypadek z ciekawszym akceptowanym słowem",
+                        action="store_true", required=False)
 
     arguments = parser.parse_args()
 
     if not arguments.a:
         arguments.a = []
-    if not arguments.fn:
-        arguments.fn = "random_fa.jff"
 
     return arguments
 
@@ -200,5 +241,11 @@ if __name__ == "__main__":
 
     g = XML_Generator(arg.n, arg.fs, arg.a)
 
+    if arg.interesting:
+        g.gen_interesting_case()
+
     g.print_as_matrix()
-    g.gen_jff_file(arg.fn)
+    print('random word accepted by fa: "', g.generate_fa_accepted_word(), '"')
+
+    if arg.fn:
+        g.gen_jff_file(arg.fn)
