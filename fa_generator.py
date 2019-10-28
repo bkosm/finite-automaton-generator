@@ -14,6 +14,9 @@ class State:
         self.is_initial = initial
         self.is_final = final
 
+        self.entering_trans = []
+        self.outcoming_trans = []
+
         self.x_coord = ''
         self.y_coord = ''
 
@@ -93,19 +96,20 @@ class XML_Generator:
                 number_of_final_states -= 1
 
         # Generowanie przejść
-        if self.alphabet:
-            for i in range(self.number_of_transitions):
-                if randint(1, 5) == 1:
-                    self.transitions.append(Transition(self.random_state(),
-                                                       self.random_state()))
-                else:
-                    self.transitions.append(Transition(self.random_state(),
-                                                       self.random_state(),
-                                                       self.random_word()))
-        else:
-            for i in range(self.number_of_transitions):
-                self.transitions.append(Transition(self.random_state(),
-                                                   self.random_state()))
+        for i in range(self.number_of_transitions):
+            from_state = self.random_state()
+            to_state = self.random_state()
+
+            trans = Transition(from_state, to_state, self.random_word())
+            if self.alphabet and randint(1, 5) == 1:
+                trans.accepted_word = None
+            elif not self.alphabet:
+                trans.accepted_word = None
+
+            from_state.outcoming_trans.append(trans)
+            to_state.entering_trans.append(trans)
+
+            self.transitions.append(trans)
 
     def random_state(self) -> State:
         return self.states[randint(0, len(self.states)-1)]
@@ -167,6 +171,8 @@ class XML_Generator:
             else:
                 print(dest.name)
 
+        print()
+
     def find_state_destination(self, state: State, word: str) -> State:
         for trans in self.transitions:
             if trans.from_state.id == state.id:
@@ -214,18 +220,37 @@ class XML_Generator:
         self.states = []
         self.transitions = []
 
+    # Działa tylko na slowach nad alfabetami z pojedynczych liter
+    def test_word(self, word: str) -> (str, bool):
+        ref = self.states[0]
+        word_index = 0
+
+        while word_index < len(word):
+            for trans in ref.outcoming_trans:
+                if trans.accepted_word == word[word_index]:
+                    word_index += 1
+                    ref = trans.to_state
+                    break
+            else:
+                return (word, False)
+
+        if ref.is_final:
+            return (word, True)
+
+        return (word, False)
+
 
 def parse_args():
-    parser = argparse.ArgumentParser(description='Wylosuj skończony automat')
+    parser = argparse.ArgumentParser(description='Generate a finite automata')
 
-    parser.add_argument("-n", help="Liczba stanów", metavar="N", type=int)
+    parser.add_argument("-n", help="Number of states", metavar="N", type=int)
     parser.add_argument(
-        "-fs", help="Liczba stanów końcowych", metavar="N", type=int)
+        "-fs", help="Number of final states", metavar="N", type=int)
     parser.add_argument(
-        "-a", help="Alfabet, słowa rozpoznawane przez automat", metavar="A", nargs="*")
+        "-a", help="List of possible words to consume on hops", metavar="A", nargs="*")
     parser.add_argument(
-        "-fn", help="Nazwa pliku wyjściowego XML", metavar="xxx.jff", required=False)
-    parser.add_argument("--interesting", help="Generuje automaty tak długo aż uzyska przypadek z ciekawszym akceptowanym słowem",
+        "-fn", help="Output XML filename", metavar="xxx.jff", required=False)
+    parser.add_argument("--interesting", help="Generate an example with a more interesting accepted word",
                         action="store_true", required=False)
 
     arguments = parser.parse_args()
