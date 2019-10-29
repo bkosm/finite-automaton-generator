@@ -1,6 +1,5 @@
 from random import randint
 import argparse
-from sys import exit
 
 
 class State:
@@ -185,17 +184,14 @@ class XML_Generator:
 
         for ref in final_states:
             msg = ''
-            loop_breaker = 0
 
-            while loop_breaker < 1000:
+            for i in range(len(self.states)**3):
                 for trans in self.transitions:
                     if trans.to_state.id == ref.id:
                         if trans.accepted_word:
                             msg += trans.accepted_word[::-1]
                         ref = trans.from_state
                         break
-
-                loop_breaker += 1
 
                 if ref.is_initial:
                     return msg[::-1]
