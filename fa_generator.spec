@@ -4,7 +4,7 @@ block_cipher = None
 
 
 a = Analysis(['fa_generator.py'],
-             pathex=['E:\\PP\\SEMESTR3\\JFIK\\fa_generator'],
+             pathex=['/home/bvrt/Repos/python/Finite-Automata-Generator'],
              binaries=[],
              datas=[],
              hiddenimports=[],

@@ -187,7 +187,7 @@ class XML_Generator:
             msg = ''
             loop_breaker = 0
 
-            while True:
+            while loop_breaker < 1000:
                 for trans in self.transitions:
                     if trans.to_state.id == ref.id:
                         if trans.accepted_word:
@@ -199,8 +199,6 @@ class XML_Generator:
 
                 if ref.is_initial:
                     return msg[::-1]
-                elif loop_breaker > 1000:
-                    break
 
         return "~"
 
