@@ -1,4 +1,4 @@
-**Finite Automata Generator**
+# Finite Automata Generator
 
 Command line tool for generating JFLAP  '.jff' files containing random FA's.
 
@@ -15,6 +15,22 @@ optional arguments:
   -a [A [A ...]]  List of possible words to consume on hops
   -fn xxx.jff     Output XML filename
   --interesting   Generate an example with a more interesting accepted word
+```
+# Converter
+
+Command line tool for translating simple automatas from XML files into GraphViz and vice versa.
+
+```
+usage: converter.py [-h] [-i xxx.[xml|gv]] [-ox xxx.[xml|jff]] [-og xxx.gv]
+
+Convert xml described automatas to graphviz and vice versa
+
+optional arguments:
+  -h, --help         show this help message and exit
+  -i xxx.[xml|gv]    Input filename
+  -ox xxx.[xml|jff]  Output xml filename
+  -og xxx.gv         Output graphviz filename
+
 ```
 
 > Bartosz Kosmala 2019
