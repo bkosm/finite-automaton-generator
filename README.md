@@ -21,16 +21,17 @@ optional arguments:
 Command line tool for translating simple automatas from XML files into GraphViz and vice versa.
 
 ```
-usage: converter.py [-h] [-i xxx.[xml|gv]] [-ox xxx.[xml|jff]] [-og xxx.gv]
+usage: converter.py [-h] [-ox xxx.(xml|jff)] [-og xxx.gv] input_file.ext
 
 Convert xml described automatas to graphviz and vice versa
 
+positional arguments:
+  input_file.ext     Input filename
+
 optional arguments:
   -h, --help         show this help message and exit
-  -i xxx.[xml|gv]    Input filename
-  -ox xxx.[xml|jff]  Output xml filename
+  -ox xxx.(xml|jff)  Output xml filename
   -og xxx.gv         Output graphviz filename
-
 ```
 
 > Bartosz Kosmala 2019
