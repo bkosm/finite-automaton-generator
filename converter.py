@@ -4,24 +4,24 @@ from copy import deepcopy
 
 
 class XML_Misc:
-    HEADER = '<?xml version="1.0" encoding="UTF-8" standalone="no"?><!--Created with JFLAP 7.1.--><structure>&#13;\n\t<type>fa</type>&#13;\n\t<automaton>&#13;'
-    STATES_STAMP = '\n\t\t<!--The list of states.-->&#13;'
-    TRANS_STAMP = '\n\t\t<!--The list of transitions.-->&#13;'
-    FOOTER = '\n\t</automaton>&#13;\n</structure>'
+    HEADER = '<?xml version="1.0" encoding="UTF-8" standalone="no"?><!--Created with JFLAP 7.1.--><structure>\n\t<type>fa</type>\n\t<automaton>'
+    STATES_STAMP = '\n\t\t<!--The list of states.-->'
+    TRANS_STAMP = '\n\t\t<!--The list of transitions.-->'
+    FOOTER = '\n\t</automaton>\n</structure>'
 
-    STATE_START_EX = r'\s*<state id=\"(\d*)\" name=\"(q\d*)\">&#13;'
-    IS_INIT_EX = r'\s*<initial/>&#13;'
-    IS_FINAL_EX = r'\s*<final/>&#13;'
-    STATE_END_EX = r'\s*</state>&#13;'
+    STATE_START_EX = r'\s*<state id=\"(\d*)\" name=\"(q\d*)\">'
+    IS_INIT_EX = r'\s*<initial/>'
+    IS_FINAL_EX = r'\s*<final/>'
+    STATE_END_EX = r'\s*</state>'
 
-    TRANS_START_EX = r'\s*<transition>&#13;'
-    TRANS_FROM_EX = r'\s*<from>(\d*)</from>&#13;'
-    TRANS_TO_EX = r'\s*<to>(\d*)</to>&#13;'
-    TRANS_READ_EX = r'\s*<read>(.*)</read>&#13;'
-    TRANS_END_EX = r'\s*</transition>&#13;'
+    TRANS_START_EX = r'\s*<transition>'
+    TRANS_FROM_EX = r'\s*<from>(\d*)</from>'
+    TRANS_TO_EX = r'\s*<to>(\d*)</to>'
+    TRANS_READ_EX = r'\s*<read>(.*)</read>'
+    TRANS_END_EX = r'\s*</transition>'
 
-    TRANS_PRE = '\n\t\t<transition>&#13;'
-    TRANS_POST = '\n\t\t</transition>&#13;'
+    TRANS_PRE = '\n\t\t<transition>'
+    TRANS_POST = '\n\t\t</transition>'
 
 
 class GV_Misc:
@@ -46,14 +46,14 @@ class State:
 
     def as_xml_string(self) -> str:
         state_str = '\n\t\t<state id="'+self.id+'" name="'+self.name + \
-            '">&#13;\n\t\t\t<x>'+self.x_coord+'</x>&#13;\n\t\t\t<y>'+self.y_coord+'</y>&#13;'
+            '">\n\t\t\t<x>'+self.x_coord+'</x>\n\t\t\t<y>'+self.y_coord+'</y>'
 
         if self.is_initial:
-            state_str += '\n\t\t\t<initial/>&#13;'
+            state_str += '\n\t\t\t<initial/>'
         if self.is_final:
-            state_str += '\n\t\t\t<final/>&#13;'
+            state_str += '\n\t\t\t<final/>'
 
-        return state_str+'\n\t\t</state>&#13;'
+        return state_str+'\n\t\t</state>'
 
     def __str__(self):
         return "{} [{}] i:{}, f:{}".format(self.name, self.id, self.is_initial, self.is_final)
@@ -67,12 +67,12 @@ class Transition:
 
     def as_xml_string(self) -> str:
         trans_str = '\n\t\t\t<from>'+self.from_state.id + \
-            '</from>&#13;\n\t\t\t<to>'+self.to_state.id+'</to>&#13;'
+            '</from>\n\t\t\t<to>'+self.to_state.id+'</to>'
 
         if self.accepted_word:
-            trans_str += '\n\t\t\t<read>'+self.accepted_word+'</read>&#13;'
+            trans_str += '\n\t\t\t<read>'+self.accepted_word+'</read>'
         else:
-            trans_str += '\n\t\t\t<read/>&#13;'
+            trans_str += '\n\t\t\t<read/>'
 
         return XML_Misc.TRANS_PRE+trans_str+XML_Misc.TRANS_POST
 
@@ -106,9 +106,14 @@ class Converter:
             file_content = file.readlines()
 
         if file_type == "jff" or file_type == "xml":
+            print("> reading XML file...")
             self.__read_xml__(file_content)
         elif file_type == "gv":
+            print("> reading GV file...")
             self.__read_gv__(file_content)
+
+        print("> read {} lines\n> {} states\n> {} transitions".format(len(file_content),
+                                                                      len(self.states), len(self.transitions)))
 
     def __read_xml__(self, file_content: list) -> None:
         state: State = None
@@ -153,6 +158,7 @@ class Converter:
 
             else:
                 new_state = re.match(XML_Misc.STATE_START_EX, line)
+
                 if new_state:
                     state = State(new_state.group(1), new_state.group(2))
                     continue
@@ -206,7 +212,6 @@ class Converter:
                     trans.accepted_word = new_trans.group(4)
 
                 self.transitions.append(trans)
-                continue
 
         for init in initial_states:
             for s in self.states:
