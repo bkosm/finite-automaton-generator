@@ -270,9 +270,9 @@ def get_args():
     parser = argparse.ArgumentParser(
         description="Convert xml described automatas to graphviz and vice versa")
 
-    parser.add_argument("-i", help="Input filename", metavar="xxx.[xml|gv]")
+    parser.add_argument("input", help="Input filename", metavar="input_file.ext")
     parser.add_argument("-ox", help="Output xml filename",
-                        metavar="xxx.[xml|jff]", required=False)
+                        metavar="xxx.(xml|jff)", required=False)
     parser.add_argument("-og", help="Output graphviz filename",
                         metavar="xxx.gv", required=False)
 
@@ -282,7 +282,7 @@ def get_args():
 if __name__ == "__main__":
     args = get_args()
 
-    c = Converter(args.i)
+    c = Converter(args.input)
 
     if args.ox:
         c.to_xml(args.ox)
